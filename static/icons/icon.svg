@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#1a1a2e"/>
+  <rect x="96" y="160" width="120" height="80" rx="8" fill="#e8a87c"/>
+  <rect x="296" y="160" width="120" height="80" rx="8" fill="#e8a87c"/>
+  <rect x="96" y="272" width="120" height="80" rx="8" fill="#c38d5f"/>
+  <rect x="296" y="272" width="120" height="80" rx="8" fill="#c38d5f"/>
+  <text x="256" y="120" text-anchor="middle" fill="#e8a87c" font-family="Arial" font-weight="bold" font-size="48">TONKA</text>
+</svg>
