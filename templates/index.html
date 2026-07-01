@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloquera Tonka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Screen management */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* Sidebar */
+        #sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 260px; height: 100vh;
+            background: #1e293b;
+            color: white;
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+            z-index: 50;
+            padding-top: 20px;
+        }
+        #sidebar.active { transform: translateX(0); }
+
+        #sidebar-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 40;
+        }
+        #sidebar-overlay.active { display: block; }
+
+        /* Sections */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Nav links */
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 4px 12px;
+            transition: all 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: #334155;
+            color: white;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            min-width: 400px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 60;
+            display: none;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .modal.active { display: block; transform: translate(-50%, -50%) scale(1); }
+
+        #modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 55;
+        }
+        #modal-overlay.active { display: block; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .toast.active { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #22c55e; }
+        .toast.error { background: #ef4444; }
+        .toast.warning { background: #f59e0b; }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-pagado { background: #dcfce7; color: #166534; }
+        .badge-anticipo { background: #fef3c7; color: #92400e; }
+        .badge-pendiente { background: #fee2e2; color: #991b1b; }
+
+        /* Buttons */
+        .btn-success {
+            background: #22c55e; color: white;
+            padding: 6px 12px; border-radius: 6px;
+            border: none; cursor: pointer;
+        }
+        .btn-danger {
+            background: #ef4444; color: white;
+            padding: 6px 12px; border-radius: 6px;
+            border: none; cursor: pointer;
+        }
+        .btn-info {
+            background: #3b82f6; color: white;
+            padding: 6px 12px; border-radius: 6px;
+            border: none; cursor: pointer;
+        }
+        .btn-primary {
+            background: #2563eb; color: white;
+            padding: 10px 20px; border-radius: 8px;
+            border: none; cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Inventory cards */
+        .inventory-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .inv-icon { font-size: 40px; margin-bottom: 8px; }
+        .inv-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+        .inv-unit { color: #64748b; font-size: 14px; }
+
+        /* Table styles */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #475569; }
+        tr:hover { background: #f8fafc; }
+
+        /* Chart container */
+        .chart-container { height: 300px; position: relative; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- ======================================== -->
+    <!-- LOGIN SCREEN -->
+    <!-- ======================================== -->
+    <div id="login-screen" class="screen active min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-900">
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="mx-auto w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mb-4">
+                    <i class="fas fa-industry text-white text-4xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Bloquera Tonka</h1>
+                <p class="text-gray-500 mt-1">Sistema de Gestion Integral</p>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-3 top-3.5 text-gray-400"></i>
+                        <input type="text" id="username" value="admin" 
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            placeholder="admin">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                        <input type="password" id="password" value="admin123" 
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            placeholder="admin123">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesion
+                </button>
+            </form>
+            <div class="mt-6 pt-4 border-t text-center text-sm text-gray-500">
+                <p>Usuario: admin | Pass: admin123</p>
+                <p>Usuario: operario | Pass: operario123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================== -->
+    <!-- MAIN SCREEN (Dashboard) -->
+    <!-- ======================================== -->
+    <div id="main-screen" class="screen">
+
+        <!-- Header -->
+        <header class="bg-white border-b shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button id="menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-700"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-industry text-white"></i>
+                    </div>
+                    <span class="font-bold text-xl text-gray-900">Bloquera Tonka</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="user-name" class="font-semibold text-gray-700"></span>
+                    <button id="logout-btn" class="text-red-600 hover:text-red-700 font-medium flex items-center gap-1">
+                        <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">Cerrar sesion</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <aside id="sidebar">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-industry text-white"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold">Bloquera Tonka</p>
+                            <p class="text-xs text-gray-400">Sistema Integral</p>
+                        </div>
+                    </div>
+                </div>
+                <nav class="mt-4">
+                    <a href="#" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-chart-pie w-6"></i> Dashboard
+                    </a>
+                    <a href="#" class="nav-link" data-section="pedidos">
+                        <i class="fas fa-shopping-cart w-6"></i> Pedidos
+                    </a>
+                    <a href="#" class="nav-link" data-section="facturas">
+                        <i class="fas fa-file-invoice w-6"></i> Facturas
+                    </a>
+                    <a href="#" class="nav-link" data-section="inventario">
+                        <i class="fas fa-boxes w-6"></i> Inventario
+                    </a>
+                    <a href="#" class="nav-link" data-section="gastos">
+                        <i class="fas fa-money-bill-wave w-6"></i> Gastos
+                    </a>
+                    <a href="#" class="nav-link" data-section="deudores">
+                        <i class="fas fa-hand-holding-usd w-6"></i> Deudores
+                    </a>
+                    <a href="#" class="nav-link" data-section="config">
+                        <i class="fas fa-cog w-6"></i> Configuracion
+                    </a>
+                </nav>
+                <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+                    <button onclick="logout()" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesion
+                    </button>
+                </div>
+            </aside>
+            <div id="sidebar-overlay"></div>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="section active">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                        <div class="bg-white p-5 rounded-2xl shadow">
+                            <p class="text-sm text-gray-500">Ventas Totales</p>
+                            <p id="dash-ventas" class="text-2xl font-bold text-green-600 mt-1">L. 0.00</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow">
+                            <p class="text-sm text-gray-500">Gastos Totales</p>
+                            <p id="dash-gastos" class="text-2xl font-bold text-red-600 mt-1">L. 0.00</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow">
+                            <p class="text-sm text-gray-500">Balance</p>
+                            <p id="dash-balance" class="text-2xl font-bold text-blue-600 mt-1">L. 0.00</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow">
+                            <p class="text-sm text-gray-500">Por Cobrar</p>
+                            <p id="dash-por-cobrar" class="text-2xl font-bold text-yellow-600 mt-1">L. 0.00</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl shadow">
+                            <p class="text-sm text-gray-500">Bloques Vendidos</p>
+                            <p id="dash-bloques" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="bg-white p-6 rounded-2xl shadow">
+                        <h3 class="font-bold text-lg mb-4">Resumen Financiero</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-resumen"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PEDIDOS -->
+                <div id="pedidos" class="section">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Pedidos</h2>
+                        <button onclick="showModal('modal-nuevo-pedido')" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i> Nuevo Pedido
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                        <table id="tabla-pedidos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Fecha</th><th>Cliente</th><th>Producto</th>
+                                    <th>Cantidad</th><th>Precio Unit.</th><th>Estado</th><th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FACTURAS -->
+                <div id="facturas" class="section">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Facturas</h2>
+                        <button onclick="descargarReporte('mensual')" class="btn-primary">
+                            <i class="fas fa-file-pdf mr-2"></i> Reporte Mensual
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                        <table id="tabla-facturas">
+                            <thead>
+                                <tr>
+                                    <th># Factura</th><th>Fecha</th><th>Cliente</th><th>Producto</th>
+                                    <th>Cantidad</th><th>Total</th><th>Estado</th><th>Saldo</th><th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- INVENTARIO -->
+                <div id="inventario" class="section">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Inventario</h2>
+                        <div class="flex gap-2">
+                            <button onclick="showModal('modal-abastecer')" class="btn-primary">
+                                <i class="fas fa-plus mr-2"></i> Abastecer
+                            </button>
+                            <button onclick="showModal('modal-producir')" class="btn-primary" style="background:#059669;">
+                                <i class="fas fa-hammer mr-2"></i> Producir
+                            </button>
+                        </div>
+                    </div>
+                    <div id="inventario-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+
+                <!-- GASTOS -->
+                <div id="gastos" class="section">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Gastos</h2>
+                        <button onclick="showModal('modal-nuevo-gasto')" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i> Nuevo Gasto
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                        <table id="tabla-gastos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Monto</th><th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DEUDORES -->
+                <div id="deudores" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Deudores</h2>
+                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                        <table id="tabla-deudores">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th><th>Deuda Total</th><th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CONFIGURACION -->
+                <div id="config" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Configuracion</h2>
+                    <div class="bg-white p-6 rounded-2xl shadow max-w-lg">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Bloques por Bolsa de Cemento</label>
+                            <input type="number" id="config-bloques" value="42" step="0.1"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Arena por 100 Bloques (m3)</label>
+                            <input type="number" id="config-arena" value="0.40" step="0.01"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <button onclick="guardarConfig()" class="btn-primary">
+                            <i class="fas fa-save mr-2"></i> Guardar Configuracion
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ======================================== -->
+    <!-- MODALS -->
+    <!-- ======================================== -->
+
+    <!-- Modal Nuevo Pedido -->
+    <div id="modal-nuevo-pedido" class="modal">
+        <h3 class="text-xl font-bold mb-4">Nuevo Pedido</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Cliente</label>
+                <input type="text" id="ped-cliente" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Producto</label>
+                <select id="ped-producto" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value='bloque_de_4"_estandar'>Bloque de 4" Estandar</option>
+                    <option value='bloque_de_5"_estandar'>Bloque de 5" Estandar</option>
+                    <option value='bloque_de_6"_estandar'>Bloque de 6" Estandar</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Cantidad</label>
+                    <input type="number" id="ped-cantidad" value="100" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Precio Unit. (L.)</label>
+                    <input type="number" id="ped-precio" value="25.00" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Estado</label>
+                <select id="ped-estado" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Pagado">Pagado</option>
+                    <option value="Anticipo">Anticipo</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
+            </div>
+            <div id="anticipo-group" style="display:none;">
+                <label class="block text-sm font-medium mb-1">Anticipo (L.)</label>
+                <input type="number" id="ped-anticipo" value="0" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal('modal-nuevo-pedido')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+            <button onclick="guardarPedido()" class="btn-primary">Guardar Pedido</button>
+        </div>
+    </div>
+
+    <!-- Modal Despachar -->
+    <div id="modal-despachar" class="modal">
+        <h3 class="text-xl font-bold mb-4">Despachar Pedido</h3>
+        <input type="hidden" id="desp-id">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Identidad</label>
+                <input type="text" id="desp-identidad" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">RTN</label>
+                <input type="text" id="desp-rtn" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Telefono</label>
+                <input type="text" id="desp-telefono" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Direccion</label>
+                <input type="text" id="desp-direccion" value="SANTA BARBARA, S.B., HONDURAS" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Tipo de Impuesto</label>
+                <select id="desp-impuesto" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Producto Gravado (15%)">Producto Gravado (15%)</option>
+                    <option value="Producto Exento">Producto Exento</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal('modal-despachar')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+            <button onclick="confirmarDespacho()" class="btn-primary">Generar Factura</button>
+        </div>
+    </div>
+
+    <!-- Modal Abastecer -->
+    <div id="modal-abastecer" class="modal">
+        <h3 class="text-xl font-bold mb-4">Abastecer Inventario</h3>
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Cemento (bolsas)</label>
+                    <input type="number" id="abs-cemento" value="0" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Costo Cemento (L.)</label>
+                    <input type="number" id="abs-costo-cemento" value="0" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Arena (m3)</label>
+                    <input type="number" id="abs-arena" value="0" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Costo Arena (L.)</label>
+                    <input type="number" id="abs-costo-arena" value="0" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal('modal-abastecer')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+            <button onclick="abastecer()" class="btn-primary">Abastecer</button>
+        </div>
+    </div>
+
+    <!-- Modal Producir -->
+    <div id="modal-producir" class="modal">
+        <h3 class="text-xl font-bold mb-4">Produccion</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Producto</label>
+                <select id="prod-producto" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value='bloque_de_4"_estandar'>Bloque de 4" Estandar</option>
+                    <option value='bloque_de_5"_estandar'>Bloque de 5" Estandar</option>
+                    <option value='bloque_de_6"_estandar'>Bloque de 6" Estandar</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Cantidad a Producir</label>
+                <input type="number" id="prod-cantidad" value="100" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal('modal-producir')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+            <button onclick="producir()" class="btn-primary" style="background:#059669;">Producir</button>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Gasto -->
+    <div id="modal-nuevo-gasto" class="modal">
+        <h3 class="text-xl font-bold mb-4">Nuevo Gasto</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Descripcion</label>
+                <input type="text" id="gasto-descripcion" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Categoria</label>
+                    <select id="gasto-categoria" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Materia Prima">Materia Prima</option>
+                        <option value="Mano de Obra">Mano de Obra</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Servicios">Servicios</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Monto (L.)</label>
+                    <input type="number" id="gasto-monto" value="0" step="0.01" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal('modal-nuevo-gasto')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+            <button onclick="guardarGasto()" class="btn-primary">Guardar Gasto</button>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" onclick="closeAllModals()"></div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- App JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
