@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Bloquera Tonka</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/static/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- LOGIN SCREEN -->
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <div class="logo-section">
+                    <div class="logo-icon">🏗️</div>
+                    <h1>BLOQUERA TONKA</h1>
+                    <p>Sistema de Gestion Integral</p>
+                </div>
+                <form id="login-form" class="login-form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Usuario" required autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Contrasena" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesion
+                    </button>
+                </form>
+                <div class="login-footer">
+                    <p>Usuario: admin | Pass: admin123</p>
+                    <p>Usuario: operario | Pass: operario123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="main-screen" class="screen">
+            <!-- HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button id="menu-toggle" class="btn-icon"><i class="fas fa-bars"></i></button>
+                    <h2>Bloquera Tonka</h2>
+                </div>
+                <div class="header-right">
+                    <span id="user-name"></span>
+                    <button id="logout-btn" class="btn-icon"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </header>
+
+            <!-- SIDEBAR -->
+            <nav id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo-icon">🏗️</div>
+                    <h3>Bloquera Tonka</h3>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" data-section="dashboard" class="nav-link active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#" data-section="pedidos" class="nav-link"><i class="fas fa-clipboard-list"></i> Pedidos</a></li>
+                    <li><a href="#" data-section="facturas" class="nav-link"><i class="fas fa-file-invoice"></i> Facturas</a></li>
+                    <li><a href="#" data-section="inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
+                    <li><a href="#" data-section="produccion" class="nav-link"><i class="fas fa-industry"></i> Produccion</a></li>
+                    <li><a href="#" data-section="gastos" class="nav-link"><i class="fas fa-money-bill-wave"></i> Gastos</a></li>
+                    <li><a href="#" data-section="deudores" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Deudores</a></li>
+                    <li><a href="#" data-section="reportes" class="nav-link"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                    <li><a href="#" data-section="config" class="nav-link"><i class="fas fa-cog"></i> Configuracion</a></li>
+                </ul>
+            </nav>
+
+            <!-- OVERLAY -->
+            <div id="sidebar-overlay" class="overlay"></div>
+
+            <!-- CONTENT -->
+            <main class="main-content">
+                <!-- DASHBOARD -->
+                <section id="dashboard" class="section active">
+                    <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card stat-ventas">
+                            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dash-ventas">L. 0.00</span>
+                                <span class="stat-label">Ventas Totales</span>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-gastos">
+                            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dash-gastos">L. 0.00</span>
+                                <span class="stat-label">Gastos Totales</span>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-balance">
+                            <div class="stat-icon"><i class="fas fa-balance-scale"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dash-balance">L. 0.00</span>
+                                <span class="stat-label">Balance</span>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-por-cobrar">
+                            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dash-por-cobrar">L. 0.00</span>
+                                <span class="stat-label">Por Cobrar</span>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-bloques">
+                            <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="dash-bloques">0</span>
+                                <span class="stat-label">Bloques Vendidos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-charts">
+                        <div class="chart-card">
+                            <h3>Resumen Financiero</h3>
+                            <canvas id="chart-resumen"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PEDIDOS -->
+                <section id="pedidos" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Pedidos</h2>
+                        <button class="btn-primary" onclick="showModal('modal-nuevo-pedido')"><i class="fas fa-plus"></i> Nuevo Pedido</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="tabla-pedidos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>Precio U.</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- FACTURAS -->
+                <section id="facturas" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-file-invoice"></i> Facturas</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="tabla-facturas">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Saldo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- INVENTARIO -->
+                <section id="inventario" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-boxes"></i> Inventario</h2>
+                        <button class="btn-primary" onclick="showModal('modal-abastecer')"><i class="fas fa-plus"></i> Abastecer</button>
+                    </div>
+                    <div class="inventory-grid" id="inventario-grid">
+                        <!-- Dynamic content -->
+                    </div>
+                </section>
+
+                <!-- PRODUCCION -->
+                <section id="produccion" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-industry"></i> Produccion</h2>
+                    </div>
+                    <div class="production-form">
+                        <div class="form-group">
+                            <label>Producto:</label>
+                            <select id="prod-producto">
+                                <option value="Bloque de 4">Bloque de 4"</option>
+                                <option value="Bloque de 5">Bloque de 5"</option>
+                                <option value="Bloque de 6">Bloque de 6"</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Cantidad:</label>
+                            <input type="number" id="prod-cantidad" min="1" value="100">
+                        </div>
+                        <div class="production-info">
+                            <p><i class="fas fa-info-circle"></i> Se necesitara cemento y arena segun configuracion</p>
+                        </div>
+                        <button class="btn-primary" onclick="producir()"><i class="fas fa-play"></i> Iniciar Produccion</button>
+                    </div>
+                </section>
+
+                <!-- GASTOS -->
+                <section id="gastos" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-money-bill-wave"></i> Gastos</h2>
+                        <button class="btn-primary" onclick="showModal('modal-nuevo-gasto')"><i class="fas fa-plus"></i> Nuevo Gasto</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="tabla-gastos">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Descripcion</th>
+                                    <th>Categoria</th>
+                                    <th>Monto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- DEUDORES -->
+                <section id="deudores" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-hand-holding-usd"></i> Deudores</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="tabla-deudores">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Deuda Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- REPORTES -->
+                <section id="reportes" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
+                    </div>
+                    <div class="reports-grid">
+                        <div class="report-card" onclick="descargarReporte('ventas')">
+                            <i class="fas fa-file-pdf"></i>
+                            <h3>Reporte de Ventas</h3>
+                            <p>Descargar PDF con todas las ventas</p>
+                        </div>
+                        <div class="report-card" onclick="descargarReporte('gastos')">
+                            <i class="fas fa-file-pdf"></i>
+                            <h3>Reporte de Gastos</h3>
+                            <p>Descargar PDF con todos los gastos</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CONFIGURACION -->
+                <section id="config" class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> Configuracion</h2>
+                    </div>
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label>Bloques por bolsa de cemento:</label>
+                            <input type="number" id="config-bloques" step="0.1" value="42">
+                        </div>
+                        <div class="form-group">
+                            <label>Arena m3 por 100 bloques:</label>
+                            <input type="number" id="config-arena" step="0.01" value="0.40">
+                        </div>
+                        <button class="btn-primary" onclick="guardarConfig()"><i class="fas fa-save"></i> Guardar Configuracion</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- MODALS -->
+        <div id="modal-nuevo-pedido" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus"></i> Nuevo Pedido</h3>
+                    <button class="btn-close" onclick="closeModal('modal-nuevo-pedido')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Cliente:</label>
+                        <input type="text" id="ped-cliente" placeholder="Nombre del cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Producto:</label>
+                        <select id="ped-producto">
+                            <option value="Bloque de 4">Bloque de 4"</option>
+                            <option value="Bloque de 5">Bloque de 5"</option>
+                            <option value="Bloque de 6">Bloque de 6"</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad:</label>
+                        <input type="number" id="ped-cantidad" min="1" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Unitario (L.):</label>
+                        <input type="number" id="ped-precio" step="0.01" value="25.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado:</label>
+                        <select id="ped-estado">
+                            <option value="Pagado">Pagado</option>
+                            <option value="Credito">Credito</option>
+                            <option value="Anticipo">Anticipo</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="anticipo-group" style="display:none;">
+                        <label>Anticipo (L.):</label>
+                        <input type="number" id="ped-anticipo" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-nuevo-pedido')">Cancelar</button>
+                    <button class="btn-primary" onclick="guardarPedido()"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-despachar" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-truck"></i> Despachar Pedido</h3>
+                    <button class="btn-close" onclick="closeModal('modal-despachar')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="desp-id">
+                    <div class="form-group">
+                        <label>Identidad:</label>
+                        <input type="text" id="desp-identidad" placeholder="0801-XXXX-XXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>R.T.N.:</label>
+                        <input type="text" id="desp-rtn" placeholder="Opcional">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono:</label>
+                        <input type="text" id="desp-telefono" placeholder="+504 XXXX-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Direccion:</label>
+                        <input type="text" id="desp-direccion" value="SANTA BARBARA, S.B., HONDURAS">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Impuesto:</label>
+                        <select id="desp-impuesto">
+                            <option value="Producto Gravado (15%)">Producto Gravado (15%)</option>
+                            <option value="Producto Exonerado">Producto Exonerado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-despachar')">Cancelar</button>
+                    <button class="btn-primary" onclick="confirmarDespacho()"><i class="fas fa-check"></i> Despachar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-abastecer" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus"></i> Abastecer Inventario</h3>
+                    <button class="btn-close" onclick="closeModal('modal-abastecer')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Cemento (bolsas):</label>
+                        <input type="number" id="abs-cemento" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Costo Cemento (L.):</label>
+                        <input type="number" id="abs-costo-cemento" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Arena (m3):</label>
+                        <input type="number" id="abs-arena" step="0.1" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Costo Arena (L.):</label>
+                        <input type="number" id="abs-costo-arena" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-abastecer')">Cancelar</button>
+                    <button class="btn-primary" onclick="abastecer()"><i class="fas fa-save"></i> Abastecer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-nuevo-gasto" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus"></i> Nuevo Gasto</h3>
+                    <button class="btn-close" onclick="closeModal('modal-nuevo-gasto')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Descripcion:</label>
+                        <input type="text" id="gasto-descripcion" placeholder="Descripcion del gasto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria:</label>
+                        <select id="gasto-categoria">
+                            <option value="Materia Prima">Materia Prima</option>
+                            <option value="Salarios">Salarios</option>
+                            <option value="Servicios">Servicios</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto (L.):</label>
+                        <input type="number" id="gasto-monto" step="0.01" value="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-nuevo-gasto')">Cancelar</button>
+                    <button class="btn-primary" onclick="guardarGasto()"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-overlay" class="modal-overlay"></div>
+
+        <!-- TOAST -->
+        <div id="toast" class="toast">
+            <i class="fas fa-check-circle"></i>
+            <span id="toast-message">Operacion exitosa</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
